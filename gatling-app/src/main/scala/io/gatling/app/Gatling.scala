@@ -157,8 +157,10 @@ class Gatling(props: mutable.Map[String, _], simulationClass: Option[Class[Simul
   }
 
   def interactiveSelect(simulations: AllSimulations): Class[Simulation] = {
+    val validRange = 0 until simulations.size
+
       @tailrec
-      def readSimulationNumber(validRange: Range): Int = {
+      def readSimulationNumber: Int = {
         println("Choose a simulation number:")
         for ((simulation, index) <- simulations.zipWithIndex) {
           println(s"     [$index] ${simulation.getName}")
@@ -169,11 +171,11 @@ class Gatling(props: mutable.Map[String, _], simulationClass: Option[Class[Simul
             if (validRange contains number) number
             else {
               println(s"Invalid selection, must be in $validRange")
-              readSimulationNumber(validRange)
+              readSimulationNumber
             }
           case _ =>
             println("Invalid characters, please provide a correct simulation number:")
-            readSimulationNumber(validRange)
+            readSimulationNumber
         }
       }
 
@@ -181,7 +183,7 @@ class Gatling(props: mutable.Map[String, _], simulationClass: Option[Class[Simul
       println("There is no simulation script. Please check that your scripts are in user-files/simulations")
       sys.exit()
     }
-    simulations(readSimulationNumber(0 until simulations.size))
+    simulations(readSimulationNumber)
   }
 
   private def generateReports(outputDirectoryName: String, dataReader: DataReader): Unit = {
