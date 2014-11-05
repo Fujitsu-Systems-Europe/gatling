@@ -165,15 +165,15 @@ class Gatling(props: mutable.Map[String, _], simulationClass: Option[Class[Simul
         }
 
         Try(StdIn.readInt()) match {
-          case Failure(_) =>
-            println("Invalid characters, please provide a correct simulation number:")
-            readSimulationNumber(validRange)
           case Success(number) =>
             if (validRange contains number) number
             else {
               println(s"Invalid selection, must be in $validRange")
               readSimulationNumber(validRange)
             }
+          case _ =>
+            println("Invalid characters, please provide a correct simulation number:")
+            readSimulationNumber(validRange)
         }
       }
 
