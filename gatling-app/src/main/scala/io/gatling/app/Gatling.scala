@@ -90,8 +90,8 @@ class Gatling(props: mutable.Map[String, _], simulationClass: Option[Class[Simul
 
   private def loadSimulations = {
     simulationClass.flatMap(_ => configuration.core.directory.reportsOnly) match {
-      case Some(_) => Nil
-      case None    => SimulationClassLoader(GatlingFiles.binariesDirectory).simulationClasses.sortBy(_.getName)
+      case None => SimulationClassLoader(GatlingFiles.binariesDirectory).simulationClasses.sortBy(_.getName)
+      case _    => Nil
     }
   }
 
@@ -106,11 +106,12 @@ class Gatling(props: mutable.Map[String, _], simulationClass: Option[Class[Simul
           }
         }
 
-      def singleSimulationFromList = {
-        val firstSimulation = simulations.headOption
-        firstSimulation.foreach(simulation => println(s"${simulation.getName} is the only simulation, executing it."))
-        firstSimulation
-      }
+      def singleSimulationFromList =
+        if (simulations.size == 1) {
+          val simulation = simulations.head
+          println(s"${simulation.getName} is the only simulation, executing it.")
+          Some(simulation)
+        } else None
 
     simulationClass orElse singleSimulationFromConfig orElse singleSimulationFromList
   }
@@ -123,8 +124,10 @@ class Gatling(props: mutable.Map[String, _], simulationClass: Option[Class[Simul
       // -- Ask for simulation ID and run description if required -- //
       val muteModeActive = configuration.core.muteMode
       val defaultBaseName = defaultOutputDirectoryBaseName(simulation)
+      val optionalDescription = configuration.core.runDescription
+
       val simulationId = if (muteModeActive) defaultBaseName else askSimulationId(simulation, defaultBaseName)
-      val runDescription = if (muteModeActive) "" else askRunDescription()
+      val runDescription = if (muteModeActive) "" else optionalDescription.getOrElse(askRunDescription())
 
       // -- Run Gatling -- //
       val selection = Selection(simulation, simulationId, runDescription)
