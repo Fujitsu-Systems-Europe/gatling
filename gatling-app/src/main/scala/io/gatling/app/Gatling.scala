@@ -127,7 +127,7 @@ class Gatling(props: mutable.Map[String, _], simulationClass: Option[Class[Simul
       val optionalDescription = configuration.core.runDescription
 
       val simulationId = if (muteModeActive) defaultBaseName else askSimulationId(simulation, defaultBaseName)
-      val runDescription = if (muteModeActive) "" else optionalDescription.getOrElse(askRunDescription())
+      val runDescription = optionalDescription.getOrElse(if (muteModeActive) "" else askRunDescription())
 
       // -- Run Gatling -- //
       val selection = Selection(simulation, simulationId, runDescription)
